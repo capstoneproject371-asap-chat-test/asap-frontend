@@ -34,3 +34,60 @@ jobs:
         with:
           push: true
           tags: ghcr.io/${{ github.repository }}:main-${{ github.sha }}
+
+          # labels: org.opencontainers.image.source=${{ github.repository }}
+          # cache-from: type=registry,ref=ghcr.io/${{ github.repository }}:main
+          # cache-to: type=inline
+          # file: ./Dockerfile
+          # platforms: linux/amd64,linux/arm64
+          # load: true
+          # builder: ${{ github.repository }}:main-${{ github.sha }}
+          # context: .
+          # target: dev
+
+deploy:
+  needs: build-push
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install OpenVPN
+      run: |
+        sudo apt update
+        sudo apt install -y openvpn openvpn-systemd-resolved
+    - name: Connect to VPN
+      uses: "kota65535/github-openvpn-connect-action@v2"
+      with:
+        config_file: ./sit-client.ovpn
+        username: ${{ secrets.OVPN_USERNAME }}
+        password: ${{ secrets.OVPN_PASSWORD }}
+    - name: executing remote ssh commands using password
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        port: ${{ secrets.SSH_PORT }}
+        script: |
+          cd /home/spadmin/OASIP-PL-3
+          docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io 
+          docker-compose stop front
+          docker-compose rm --force front
+          docker rmi ghcr.io/ziim-eiei/oasip-pl-3-frontend
+          docker-compose pull front
+          docker-compose up -d front
+          
+
+  # steps:
+  #   - name: Deploy
+  #     uses: appleboy/ssh-action@master
+  #     with:
+  #       host: ${{ secrets.HOST }}
+  #       username: ${{ secrets.USERNAME }}
+  #       key: ${{ secrets.KEY }}
+  #       port: ${{ secrets.PORT }}
+  #       script: |
+  #         cd /home/ubuntu
+  #         docker-compose down
+  #         docker-compose pull
+  #         docker-compose up -d
