@@ -72,7 +72,7 @@ jobs:
           script: |
             # cd /home/spadmin/OASIP-PL-3
             mkdir passlaew
-            docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io 
+            # docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io 
             # docker-compose stop front
             # docker-compose rm --force front
             # docker rmi ghcr.io/ziim-eiei/oasip-pl-3-frontend
