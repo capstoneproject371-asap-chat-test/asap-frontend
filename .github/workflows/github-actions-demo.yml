@@ -46,34 +46,35 @@ jobs:
       #     push: true
       #     tags: ghcr.io/${{ github.repository }}:main-${{ github.sha }}
 
-  # deploy:
-  #   needs: build-push
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v3
-  #     - name: Install OpenVPN
-  #       run: |
-  #         sudo apt update
-  #         sudo apt install -y openvpn openvpn-systemd-resolved
-  #     - name: Connect to VPN
-  #       uses: "kota65535/github-openvpn-connect-action@v2"
-  #       with:
-  #         config_file: ./sit-client.ovpn
-  #         username: ${{ secrets.OVPN_USERNAME }}
-  #         password: ${{ secrets.OVPN_PASSWORD }}
-  #     - name: executing remote ssh commands using password
-  #       uses: appleboy/ssh-action@master
-  #       with:
-  #         host: ${{ secrets.SSH_HOST }}
-  #         username: ${{ secrets.SSH_USERNAME }}
-  #         password: ${{ secrets.SSH_PASSWORD }}
-  #         port: ${{ secrets.SSH_PORT }}
-  #         script: |
-  #           cd /home/spadmin/OASIP-PL-3
-  #           docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io 
-  #           docker-compose stop front
-  #           docker-compose rm --force front
-  #           docker rmi ghcr.io/ziim-eiei/oasip-pl-3-frontend
-  #           docker-compose pull front
-  #           docker-compose up -d front
+  deploy:
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      # - name: Install OpenVPN
+      #   run: |
+      #     sudo apt update
+      #     sudo apt install -y openvpn openvpn-systemd-resolved
+      # - name: Connect to VPN
+      #   uses: "kota65535/github-openvpn-connect-action@v2"
+      #   with:
+      #     config_file: ./sit-client.ovpn
+      #     username: ${{ secrets.OVPN_USERNAME }}
+      #     password: ${{ secrets.OVPN_PASSWORD }}
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            # cd /home/spadmin/OASIP-PL-3
+            mkdir passlaew
+            # docker login --username ${{ github.actor }} --password ${{ secrets.GITHUB_TOKEN }} ghcr.io 
+            # docker-compose stop front
+            # docker-compose rm --force front
+            # docker rmi ghcr.io/ziim-eiei/oasip-pl-3-frontend
+            # docker-compose pull front
+            # docker-compose up -d front
